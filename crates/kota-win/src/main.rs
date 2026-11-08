@@ -200,12 +200,17 @@ fn open_settings(app: &AppHandle) {
         let _ = w.set_focus();
         return;
     }
-    let _ = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
-        .title("Kota")
-        .inner_size(820.0, 880.0)
-        .min_inner_size(560.0, 500.0)
-        .center()
-        .build();
+    // Windows'ta pencere ana iş parçacığında (senkron komut / menü olayı) kurulursa
+    // WebView2 kilitlenir; kurulumu ayrı bir görevde yap.
+    let app = app.clone();
+    tauri::async_runtime::spawn(async move {
+        let _ = WebviewWindowBuilder::new(&app, "settings", WebviewUrl::App("settings.html".into()))
+            .title("Kota")
+            .inner_size(820.0, 880.0)
+            .min_inner_size(560.0, 500.0)
+            .center()
+            .build();
+    });
 }
 
 // ------------------------------------------------------------ komutlar
